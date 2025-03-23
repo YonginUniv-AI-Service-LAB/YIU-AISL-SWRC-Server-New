@@ -2,6 +2,7 @@ package SWRC.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -16,14 +17,17 @@ public class MatchRecord {
     private Long id;
 
     @Column(nullable = false)
-    private String matchName;  // 경기 이름 (예: 결승전)
+    private LocalDate matchDate;  // 경기 날짜
 
     @Column(nullable = false)
-    private String teamA;  // 팀 A 이름
+    private String competitionName;  // 대회명
 
     @Column(nullable = false)
-    private String teamB;  // 팀 B 이름
+    private String opponent;  // 상대 선수 또는 팀
 
-    private int teamAScore;  // 팀 A 점수
-    private int teamBScore;  // 팀 B 점수
+    @Column(nullable = false)
+    private String result;  // 승/패 (예: "WIN", "LOSE", "DRAW")
+
+    @Column
+    private String etc;  // 기타 사항 (선택)
 }

@@ -11,12 +11,28 @@ import java.util.Date;
 public class JwtUtil {
     private static final String SECRET_KEY = "your-secret-key-your-secret-key-your-secret-key"; // 32바이트 이상 필요
 
-    // ✅ JWT 생성
+    // ✅ Access Token 유효기간: 15분
+    private static final long ACCESS_TOKEN_EXPIRATION = 15 * 60 * 1000;
+
+    // ✅ Refresh Token 유효기간: 7일
+    private static final long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60 * 1000;
+
+    // ✅ Access Token 생성
     public String generateToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 15 * 60 * 1000)) // 15분 만료
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
+                .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    // ✅ Refresh Token 생성
+    public String generateRefreshToken(String email) {
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
                 .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -33,5 +49,9 @@ public class JwtUtil {
         } catch (JwtException e) {
             return null; // 토큰이 유효하지 않음
         }
+    }
+
+    public long getRefreshTokenExpiration() {
+        return REFRESH_TOKEN_EXPIRATION;
     }
 }

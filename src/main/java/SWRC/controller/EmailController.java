@@ -28,7 +28,7 @@ public class EmailController {
     }
 
     // 이메일 인증번호 검증
-    @PostMapping("/verify")
+    @GetMapping("/verify")
     public ResponseEntity<String> verifyEmail(@RequestParam String email, @RequestParam String verificationCode) {
         if (emailService.verifyCode(email, verificationCode)) {
             return ResponseEntity.ok("인증번호 확인 완료!");

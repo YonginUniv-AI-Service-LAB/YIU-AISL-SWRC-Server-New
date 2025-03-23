@@ -37,4 +37,13 @@ public class User {
     public enum Role {
         STUDENT, ADMIN
     }
+
+    // 이메일과 비밀번호만 받는 생성자 (테스트/간편 생성용)
+    public User(String email, String password) {
+        this.email = email;
+        this.password = password;
+        this.name = "Default Name";
+        this.phoneNumber = "000-0000-0000";
+        this.role = Role.STUDENT;
+    }
 }

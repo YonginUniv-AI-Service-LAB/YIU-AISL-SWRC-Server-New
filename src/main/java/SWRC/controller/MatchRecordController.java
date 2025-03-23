@@ -26,10 +26,17 @@ public class MatchRecordController {
     public ResponseEntity<List<MatchRecord>> getAllMatchRecords() {
         return ResponseEntity.ok(matchRecordService.getAllMatchRecords());
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<MatchRecord> updateMatchRecord(@PathVariable Long id, @RequestBody MatchRecord updatedRecord) {
+        MatchRecord updated = matchRecordService.updateMatchRecord(id, updatedRecord);
+        return ResponseEntity.ok(updated);
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteMatchRecord(@PathVariable Long id) {
         matchRecordService.deleteMatchRecord(id);
         return ResponseEntity.ok("경기 기록 삭제 완료");
     }
+
 }

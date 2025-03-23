@@ -1,28 +1,37 @@
 package SWRC.service;
 
+import SWRC.entity.User;
+import SWRC.repository.UserRepository;
 import org.springframework.stereotype.Service;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class UserService {
 
-    private final Map<String, String> userDatabase = new HashMap<>(); // (email, password) 저장
+    private final UserRepository userRepository;
 
-    // ✅ 회원가입 (이메일 & 비밀번호 저장)
-    public void registerUser(String email, String password) {
-        userDatabase.put(email, password);
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    // ✅ 로그인 시 비밀번호 검증
+    // ✅ 회원가입 (MySQL에 저장)
+    public User registerUser(String email, String password) {
+        User user = new User(email, password);
+        return userRepository.save(user); // 👉 MySQL에 저장됨
+    }
+
+    // ✅ 로그인 시 비밀번호 검증 (DB에서 조회)
     public boolean authenticate(String email, String password) {
-        return userDatabase.containsKey(email) && userDatabase.get(email).equals(password);
+        Optional<User> user = userRepository.findByEmail(email);
+        return user.isPresent() && user.get().getPassword().equals(password);
     }
 
-    // ✅ 비밀번호 변경
+    // ✅ 비밀번호 변경 (DB에 저장된 값 업데이트)
     public void updatePassword(String email, String newPassword) {
-        if (userDatabase.containsKey(email)) {
-            userDatabase.put(email, newPassword);
-        }
+        Optional<User> user = userRepository.findByEmail(email);
+        user.ifPresent(u -> {
+            u.setPassword(newPassword);
+            userRepository.save(u); // 👉 MySQL에 업데이트됨
+        });
     }
 }

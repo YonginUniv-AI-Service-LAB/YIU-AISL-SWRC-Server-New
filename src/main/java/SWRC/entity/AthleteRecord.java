@@ -3,6 +3,8 @@ package SWRC.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @Setter
@@ -16,10 +18,16 @@ public class AthleteRecord {
     private Long id;
 
     @Column(nullable = false)
-    private String athleteName;  // 선수 이름
+    private String event; // 분야 (예: 100m 달리기)
 
     @Column(nullable = false)
-    private String sportType;  // 종목 (예: 축구, 유도)
+    private String unit; // 단위 (예: 초, m)
 
-    private int score;  // 점수
+    @Column(nullable = false)
+    private LocalDate recordDate; // 기록 날짜
+
+    @Column(nullable = false)
+    private Double recordValue; // 기록 수치 (예: 10.23초)
+
+    private String etc; // 특이사항 (선택)
 }
