@@ -29,6 +29,7 @@ public class UserService {
                 .name(name)
                 .phoneNumber(phoneNumber)
                 .role(User.Role.STUDENT)
+                .profileSet(false)
                 .build();
 
         return userRepository.save(user);
@@ -64,8 +65,16 @@ public class UserService {
     // ✅ 비밀번호 변경 (암호화 후 저장)
     public void updatePassword(String email, String newPassword) {
         userRepository.findByEmail(email).ifPresent(user -> {
+
+            // 🔍 테스트용
+            String encodedPassword = passwordEncoder.encode(newPassword);
+
             user.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(user);
+
+            // 🔍 테스트용 로그
+            System.out.println("✅ 비밀번호가 변경되었습니다.");
+            System.out.println("변경된 해시된 비밀번호: " + encodedPassword);
         });
     }
 }

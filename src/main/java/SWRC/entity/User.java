@@ -37,6 +37,9 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(nullable = false)
+    private Boolean profileSet = false; // ⭐ 추가된 부분
+
     public enum Role {
         STUDENT, ADMIN
     }
