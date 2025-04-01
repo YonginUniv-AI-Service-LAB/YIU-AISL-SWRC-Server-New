@@ -34,6 +34,13 @@ public class AuthController {
     // ✅ 1. 이메일 인증 코드 발송
     @GetMapping("/send-verification")
     public ResponseEntity<String> sendVerificationCode(@RequestParam String email) {
+        // 이미 가입된 이메일인지 확인
+        if (userService.existsByEmail(email)) {
+            return ResponseEntity
+                    .status(409) // Conflict
+                    .body("이미 가입된 이메일입니다.");
+        }
+
         emailService.sendVerificationEmail(email);
         return ResponseEntity.ok("인증 코드가 이메일로 전송되었습니다.");
     }
@@ -119,4 +126,5 @@ public class AuthController {
         userService.updatePassword(email, newPassword);
         return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
     }
+
 }

@@ -77,4 +77,8 @@ public class UserService {
             System.out.println("변경된 해시된 비밀번호: " + encodedPassword);
         });
     }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
 }
