@@ -1,3 +1,4 @@
+// AthleteRecord.java
 package SWRC.entity;
 
 import jakarta.persistence.*;
@@ -18,16 +19,16 @@ public class AthleteRecord {
     private Long id;
 
     @Column(nullable = false)
-    private String event; // 분야 (예: 100m 달리기)
+    private String event;
 
     @Column(nullable = false)
-    private String unit; // 단위 (예: 초, m)
+    private String unit;
 
     @Column(nullable = false)
-    private LocalDate recordDate; // 기록 날짜
+    private LocalDate recordDate;
 
     @Column(nullable = false)
-    private Double recordValue; // 기록 수치 (예: 10.23초)
+    private Double recordValue;
 
-    private String etc; // 특이사항 (선택)
+    private String etc;
 }

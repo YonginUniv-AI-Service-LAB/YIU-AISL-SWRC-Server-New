@@ -38,4 +38,6 @@ public class SignupRequest {
             message = "인증번호는 6자리 숫자여야 합니다."
     )
     private String verificationCode;
+
 }
+

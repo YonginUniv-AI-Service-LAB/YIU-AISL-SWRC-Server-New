@@ -1,5 +1,7 @@
+// MatchRecordService.java
 package SWRC.service;
 
+import SWRC.dto.request.MatchRecordRequest;
 import SWRC.entity.MatchRecord;
 import SWRC.repository.MatchRecordRepository;
 import org.springframework.stereotype.Service;
@@ -16,7 +18,13 @@ public class MatchRecordService {
         this.matchRecordRepository = matchRecordRepository;
     }
 
-    public MatchRecord createMatchRecord(MatchRecord record) {
+    public MatchRecord createMatchRecord(MatchRecordRequest request) {
+        MatchRecord record = new MatchRecord();
+        record.setTournamentName(request.getTournamentName());
+        record.setMatchDate(request.getMatchDate());
+        record.setOpponent(request.getOpponent());
+        record.setResult(request.getResult());
+        record.setEtc(request.getEtc());
         return matchRecordRepository.save(record);
     }
 
@@ -28,14 +36,14 @@ public class MatchRecordService {
         return matchRecordRepository.findById(id);
     }
 
-    public MatchRecord updateMatchRecord(Long id, MatchRecord updatedRecord) {
+    public MatchRecord updateMatchRecord(Long id, MatchRecordRequest request) {
         return matchRecordRepository.findById(id)
                 .map(record -> {
-                    record.setMatchDate(updatedRecord.getMatchDate());
-                    record.setCompetitionName(updatedRecord.getCompetitionName());
-                    record.setOpponent(updatedRecord.getOpponent());
-                    record.setResult(updatedRecord.getResult());
-                    record.setEtc(updatedRecord.getEtc());
+                    record.setTournamentName(request.getTournamentName());
+                    record.setMatchDate(request.getMatchDate());
+                    record.setOpponent(request.getOpponent());
+                    record.setResult(request.getResult());
+                    record.setEtc(request.getEtc());
                     return matchRecordRepository.save(record);
                 })
                 .orElseThrow(() -> new RuntimeException("MatchRecord not found with id: " + id));

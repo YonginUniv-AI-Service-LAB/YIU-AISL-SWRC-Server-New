@@ -1,5 +1,7 @@
+// AthleteRecordService.java
 package SWRC.service;
 
+import SWRC.dto.request.AthleteRecordRequest;
 import SWRC.entity.AthleteRecord;
 import SWRC.repository.AthleteRecordRepository;
 import org.springframework.stereotype.Service;
@@ -16,36 +18,35 @@ public class AthleteRecordService {
         this.athleteRecordRepository = athleteRecordRepository;
     }
 
-    // Create
-    public AthleteRecord createAthleteRecord(AthleteRecord record) {
+    public AthleteRecord createAthleteRecord(AthleteRecordRequest request) {
+        AthleteRecord record = new AthleteRecord();
+        record.setRecordDate(request.getRecordDate());
+        record.setRecordValue(request.getRecordValue());
+        record.setEtc(request.getEtc());
+        record.setEvent("종목 입력"); // 기본값 또는 외부에서 설정 가능
+        record.setUnit("단위 입력"); // 예: 초, m 등
         return athleteRecordRepository.save(record);
     }
 
-    // Read All
     public List<AthleteRecord> getAllAthleteRecords() {
         return athleteRecordRepository.findAll();
     }
 
-    // Read By ID
     public Optional<AthleteRecord> getAthleteRecordById(Long id) {
         return athleteRecordRepository.findById(id);
     }
 
-    // Update
-    public AthleteRecord updateAthleteRecord(Long id, AthleteRecord updatedRecord) {
+    public AthleteRecord updateAthleteRecord(Long id, AthleteRecordRequest request) {
         return athleteRecordRepository.findById(id)
                 .map(record -> {
-                    record.setEvent(updatedRecord.getEvent());
-                    record.setUnit(updatedRecord.getUnit());
-                    record.setRecordDate(updatedRecord.getRecordDate());
-                    record.setRecordValue(updatedRecord.getRecordValue());
-                    record.setEtc(updatedRecord.getEtc());
+                    record.setRecordDate(request.getRecordDate());
+                    record.setRecordValue(request.getRecordValue());
+                    record.setEtc(request.getEtc());
                     return athleteRecordRepository.save(record);
                 })
                 .orElseThrow(() -> new RuntimeException("AthleteRecord not found with id: " + id));
     }
 
-    // Delete
     public void deleteAthleteRecord(Long id) {
         athleteRecordRepository.deleteById(id);
     }

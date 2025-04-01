@@ -60,6 +60,12 @@ public class UserService {
                 .map(user -> passwordEncoder.matches(rawPassword, user.getPassword()))
                 .orElse(false);
     }
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("해당 이메일의 사용자를 찾을 수 없습니다."));
+    }
+
+
 
     // ✅ 비밀번호 변경 (암호화 후 저장)
     public void updatePassword(String email, String newPassword) {

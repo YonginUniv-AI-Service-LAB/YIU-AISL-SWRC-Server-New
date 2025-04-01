@@ -1,7 +1,10 @@
+// AthleteRecordController.java
 package SWRC.controller;
 
+import SWRC.dto.request.AthleteRecordRequest;
 import SWRC.entity.AthleteRecord;
 import SWRC.service.AthleteRecordService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,19 +20,20 @@ public class AthleteRecordController {
         this.athleteRecordService = athleteRecordService;
     }
 
-    // Create
+    // ✅ Create
     @PostMapping
-    public ResponseEntity<AthleteRecord> createAthleteRecord(@RequestBody AthleteRecord record) {
-        return ResponseEntity.ok(athleteRecordService.createAthleteRecord(record));
+    public ResponseEntity<AthleteRecord> createAthleteRecord(@Valid @RequestBody AthleteRecordRequest request) {
+        AthleteRecord savedRecord = athleteRecordService.createAthleteRecord(request);
+        return ResponseEntity.ok(savedRecord);
     }
 
-    // Read All
+    // ✅ Read All
     @GetMapping
     public ResponseEntity<List<AthleteRecord>> getAllAthleteRecords() {
         return ResponseEntity.ok(athleteRecordService.getAllAthleteRecords());
     }
 
-    // Read By ID
+    // ✅ Read By ID
     @GetMapping("/{id}")
     public ResponseEntity<AthleteRecord> getAthleteRecordById(@PathVariable Long id) {
         return athleteRecordService.getAthleteRecordById(id)
@@ -37,16 +41,16 @@ public class AthleteRecordController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Update
+    // ✅ Update
     @PutMapping("/{id}")
     public ResponseEntity<AthleteRecord> updateAthleteRecord(
             @PathVariable Long id,
-            @RequestBody AthleteRecord updatedRecord) {
-        AthleteRecord updated = athleteRecordService.updateAthleteRecord(id, updatedRecord);
+            @Valid @RequestBody AthleteRecordRequest request) {
+        AthleteRecord updated = athleteRecordService.updateAthleteRecord(id, request);
         return ResponseEntity.ok(updated);
     }
 
-    // Delete
+    // ✅ Delete
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteAthleteRecord(@PathVariable Long id) {
         athleteRecordService.deleteAthleteRecord(id);

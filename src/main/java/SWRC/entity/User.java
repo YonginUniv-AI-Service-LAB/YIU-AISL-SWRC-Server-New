@@ -37,8 +37,19 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ApprovalStatus approvalStatus = ApprovalStatus.PENDING;
+
+    @Column(nullable = false)
+    private boolean isProfileSet = false; // 기본값은 false (프로필 미설정)
+
     public enum Role {
         STUDENT, ADMIN
+    }
+
+    public enum ApprovalStatus {
+        PENDING, APPROVED, REJECTED
     }
 
     // ❌ 테스트용 생성자 제거 (필요 시 빌더로 생성하세요)

@@ -83,9 +83,9 @@ public class AuthController {
         return ResponseEntity.ok("관리자 회원가입 성공!");
     }
 
-    // ✅ 4. 로그인 (JWT + Refresh Token 발급)
+    // ✅ 4. 로그인 (JWT + Refresh Token 발급 + isProfileSet 포함)
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestParam String email, @RequestParam String password) {
+    public ResponseEntity<Map<String, Object>> login(@RequestParam String email, @RequestParam String password) {
         if (!userService.authenticate(email, password)) {
             throw new ApiException(ErrorType.INVALID_PASSWORD);
         }
@@ -95,9 +95,13 @@ public class AuthController {
 
         refreshTokenService.saveRefreshToken(email, refreshToken, 7 * 24 * 60 * 60 * 1000); // 7일
 
+        // 🔥 사용자 정보 조회 → isProfileSet 확인
+        User user = userService.findByEmail(email);
+
         return ResponseEntity.ok(Map.of(
                 "accessToken", accessToken,
-                "refreshToken", refreshToken
+                "refreshToken", refreshToken,
+                "isProfileSet", user.isProfileSet()
         ));
     }
 
