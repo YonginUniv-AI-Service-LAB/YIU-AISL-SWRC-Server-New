@@ -24,13 +24,13 @@ public class PasswordChangeRequest {
     )
     private String newPassword;
 
-    @NotBlank(message = "비밀번호 확인은 필수입니다.")
-    private String confirmPassword;
+//    @NotBlank(message = "비밀번호 확인은 필수입니다.")
+//    private String confirmPassword;
 
     /**
      * 새 비밀번호와 확인 비밀번호가 같은지 검증하는 헬퍼 메서드
      */
-    public boolean isPasswordConfirmed() {
-        return newPassword != null && newPassword.equals(confirmPassword);
-    }
+//    public boolean isPasswordConfirmed() {
+//        return newPassword != null && newPassword.equals(confirmPassword);
+//    }
 }

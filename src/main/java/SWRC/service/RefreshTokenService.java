@@ -3,6 +3,7 @@ package SWRC.service;
 import SWRC.entity.RefreshToken;
 import SWRC.repository.RefreshTokenRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -15,8 +16,10 @@ public class RefreshTokenService {
         this.refreshTokenRepository = refreshTokenRepository;
     }
 
+    @Transactional
     public void saveRefreshToken(String email, String token, long expireMillis) {
         refreshTokenRepository.deleteByEmail(email); // 기존 토큰 삭제
+        refreshTokenRepository.flush(); // 💡 추가
 
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setEmail(email);

@@ -14,7 +14,11 @@ public class CorsConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
+<<<<<<< HEAD
         config.setAllowedOrigins(List.of("http://localhost:8081/")); // ✅ 모든 Origin 허용 (배포 시 변경 필요)
+=======
+        config.setAllowedOrigins(List.of("http://localhost:8081")); // ✅ 모든 Origin 허용 (배포 시 변경 필요)
+>>>>>>> jiyoung
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
 
