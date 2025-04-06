@@ -1,5 +1,5 @@
 package SWRC.security;  // ✅ security 패키지 내부에 위치
-
+import SWRC.service.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,40 +15,42 @@ import java.io.IOException;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
-    private final JwtUtil jwtUtil;
 
-    public JwtFilter(JwtUtil jwtUtil) {
+    private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService;
+
+    public JwtFilter(JwtUtil jwtUtil, CustomUserDetailsService customUserDetailsService) {
         this.jwtUtil = jwtUtil;
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+
         String token = request.getHeader("Authorization");
 
         if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7); // "Bearer " 제거
-            String username = jwtUtil.validateToken(token);
+            token = token.substring(7);
+            String email = jwtUtil.validateToken(token);
 
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // Spring Security의 UserDetails 객체 생성
-                UserDetails userDetails = User.withUsername(username)
-                        .password("") // 실제 비밀번호는 사용하지 않음
-                        .roles("USER") // 기본 역할 설정
-                        .build();
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                // ✅ 진짜 DB에서 유저 정보 가져오기
+                UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
 
-                // 인증 객체 생성 후 SecurityContext에 저장
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities()
                 );
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else if (username == null) {
+            } else if (email == null) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.getWriter().write("Invalid JWT Token");
                 return;
             }
         }
+
         filterChain.doFilter(request, response);
     }
 }
