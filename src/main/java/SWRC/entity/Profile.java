@@ -31,4 +31,8 @@ public class Profile {
 
     private String event; // 분야 (예: 100m)
     private String unit;  // 단위 (예: 초, kg)
+
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

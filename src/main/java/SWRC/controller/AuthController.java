@@ -108,7 +108,8 @@ public class AuthController {
         return ResponseEntity.ok(Map.of(
                 "accessToken", accessToken,
                 "refreshToken", refreshToken,
-                "isProfileSet", user.isProfileSet()
+                "isProfileSet", user.isProfileSet(),
+                "userId", user.getId()
         ));
     }
 
@@ -131,4 +132,23 @@ public class AuthController {
         return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
     }
 
+    // ✅ 7. 현재 로그인한 사용자 정보 조회 (JWT에서 이메일 추출)
+    @GetMapping("/me")
+    public ResponseEntity<Map<String, Object>> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
+        // "Bearer eyJhbGci..." 형태에서 토큰만 추출
+        String token = authHeader.replace("Bearer ", "");
+
+        // 토큰에서 이메일 추출
+        String email = jwtUtil.extractUsername(token);
+
+        // 이메일로 사용자 조회
+        User user = userService.findByEmail(email);
+
+        return ResponseEntity.ok(Map.of(
+                "email", user.getEmail(),
+                "role", user.getRole().name(),
+                "isProfileSet", user.getProfileSet(),
+                "userId", user.getId()
+        ));
+    }
 }

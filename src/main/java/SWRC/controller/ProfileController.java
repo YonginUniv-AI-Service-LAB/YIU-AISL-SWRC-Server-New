@@ -33,10 +33,20 @@ public class ProfileController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+//    userId로 프로필을 조회
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Profile> getProfileByUserId(@PathVariable Long userId) {
+        return profileService.getProfileByUserId(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Profile> updateProfile(@PathVariable Long id, @RequestBody Profile updatedProfile) {
-        return ResponseEntity.ok(profileService.updateProfile(id, updatedProfile));
+    @PutMapping("/user/{userId}")
+    public ResponseEntity<Profile> updateProfileByUserId(
+            @PathVariable Long userId,
+            @RequestBody Profile updatedProfile
+    ) {
+        return ResponseEntity.ok(profileService.updateProfileByUserId(userId, updatedProfile));
     }
 
     @DeleteMapping("/{id}")

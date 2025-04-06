@@ -51,6 +51,16 @@ public class JwtUtil {
         }
     }
 
+    // ✅ 사용자 email 추출 메서드 추가
+    public String extractUsername(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8)))
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject(); // subject에 email 저장됨
+    }
+
     public long getRefreshTokenExpiration() {
         return REFRESH_TOKEN_EXPIRATION;
     }

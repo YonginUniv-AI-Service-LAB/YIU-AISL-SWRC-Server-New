@@ -38,8 +38,8 @@ public class User extends BaseEntity {
     private Role role;
 
     @Column(nullable = false)
-
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private ApprovalStatus approvalStatus = ApprovalStatus.PENDING;
 
     @Column(nullable = false)
