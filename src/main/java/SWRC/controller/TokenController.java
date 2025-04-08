@@ -29,7 +29,12 @@ public class TokenController {
             throw new ApiException(ErrorType.INVALID_REFRESH_TOKEN);
         }
 
-        String newAccessToken = jwtUtil.generateToken(stored.getEmail());
+        // 🔥 수정 포인트: userId와 email을 모두 넘겨야 함
+        Long userId = stored.getUserId();   // RefreshToken 엔티티에 userId 있어야 함
+        String email = stored.getEmail();
+
+        String newAccessToken = jwtUtil.generateToken(userId, email);
+
         return ResponseEntity.ok(new TokenResponse(newAccessToken));
     }
 

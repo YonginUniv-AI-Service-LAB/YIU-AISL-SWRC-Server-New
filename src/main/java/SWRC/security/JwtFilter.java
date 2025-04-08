@@ -1,27 +1,24 @@
-package SWRC.security;  // ✅ security 패키지 내부에 위치
-import SWRC.service.CustomUserDetailsService;
+package SWRC.security;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final CustomUserDetailsService customUserDetailsService;
 
-    public JwtFilter(JwtUtil jwtUtil, CustomUserDetailsService customUserDetailsService) {
+    public JwtFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
-        this.customUserDetailsService = customUserDetailsService;
     }
 
     @Override
@@ -31,12 +28,22 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = request.getHeader("Authorization");
 
         if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
+            token = token.substring(7); // "Bearer " 이후 부분만 잘라내기
+
+            // ✅ validateToken으로 이메일(subject) 검증
             String email = jwtUtil.validateToken(token);
 
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // ✅ 진짜 DB에서 유저 정보 가져오기
-                UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+                // ✅ 추가: 토큰에서 userId도 추출
+                Long userId = jwtUtil.extractUserId(token);
+
+                // ✅ userId, email을 담은 UserDetailsImpl 생성
+                UserDetailsImpl userDetails = new UserDetailsImpl(
+                        SWRC.entity.User.builder()
+                                .id(userId)
+                                .email(email)
+                                .build()
+                );
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities()

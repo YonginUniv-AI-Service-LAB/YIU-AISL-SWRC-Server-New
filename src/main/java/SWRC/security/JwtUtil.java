@@ -1,5 +1,5 @@
-package SWRC.security;  // ✅ security 패키지 내부에 위치
-//이 파일은 이메일 인증 시 사용할 JWT를 생성하고, 검증하는 역할을 합니다.
+package SWRC.security;
+
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
@@ -9,25 +9,25 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private static final String SECRET_KEY = "your-secret-key-your-secret-key-your-secret-key"; // 32바이트 이상 필요
+    // ✅ 시크릿 키 (32바이트 이상)
+    private static final String SECRET_KEY = "your-secret-key-your-secret-key-your-secret-key";
 
-    // ✅ Access Token 유효기간: 15분
-    private static final long ACCESS_TOKEN_EXPIRATION = 15 * 60 * 1000;
+    // ✅ 토큰 유효기간 설정
+    private static final long ACCESS_TOKEN_EXPIRATION = 15 * 60 * 1000; // 15분
+    private static final long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60 * 1000; // 7일
 
-    // ✅ Refresh Token 유효기간: 7일
-    private static final long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60 * 1000;
-
-    // ✅ Access Token 생성
-    public String generateToken(String email) {
+    // ✅ Access Token 생성 (userId, email 담아서 생성)
+    public String generateToken(Long userId, String email) {
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(email) // 기본 subject는 email로
+                .claim("userId", userId) // 추가 정보로 userId 저장
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
                 .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // ✅ Refresh Token 생성
+    // ✅ Refresh Token 생성 (email만 담아도 됨)
     public String generateRefreshToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
@@ -37,7 +37,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    // ✅ JWT 검증 및 사용자명 반환
+    // ✅ Access Token 검증 (문제 없으면 email 반환)
     public String validateToken(String token) {
         try {
             return Jwts.parserBuilder()
@@ -51,16 +51,27 @@ public class JwtUtil {
         }
     }
 
-    // ✅ 사용자 email 추출 메서드 추가
+    // ✅ email(Username) 추출
     public String extractUsername(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8)))
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
-                .getSubject(); // subject에 email 저장됨
+                .getSubject(); // subject에 저장된 email 반환
     }
 
+    // ✅ userId 추출 (우리가 추가한 claim)
+    public Long extractUserId(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8)))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("userId", Long.class); // claim에서 userId 꺼내기
+    }
+
+    // ✅ RefreshToken 만료 시간 반환 (필요시 사용)
     public long getRefreshTokenExpiration() {
         return REFRESH_TOKEN_EXPIRATION;
     }

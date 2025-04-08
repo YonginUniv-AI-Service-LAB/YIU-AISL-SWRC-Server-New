@@ -17,14 +17,16 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    public void saveRefreshToken(String email, String token, long expireMillis) {
+    public void saveRefreshToken(Long userId, String email, String token, long expireMillis) {
         refreshTokenRepository.deleteByEmail(email); // 기존 토큰 삭제
         refreshTokenRepository.flush(); // 💡 추가
 
-        RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setEmail(email);
-        refreshToken.setToken(token);
-        refreshToken.setExpiredAt(LocalDateTime.now().plusSeconds(expireMillis / 1000));
+        RefreshToken refreshToken = RefreshToken.builder()
+                .userId(userId) // ✅ userId 추가
+                .email(email)
+                .token(token)
+                .expiredAt(LocalDateTime.now().plusSeconds(expireMillis / 1000))
+                .build();
 
         refreshTokenRepository.save(refreshToken);
     }

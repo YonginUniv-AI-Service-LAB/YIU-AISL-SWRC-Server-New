@@ -31,13 +31,12 @@ public class AuthController {
         this.refreshTokenService = refreshTokenService;
     }
 
-    // ✅ 1. 이메일 인증 코드 발송
+    // ✅ 이메일 인증 코드 발송
     @GetMapping("/send-verification")
     public ResponseEntity<String> sendVerificationCode(@RequestParam String email) {
-        // 이미 가입된 이메일인지 확인
         if (userService.existsByEmail(email)) {
             return ResponseEntity
-                    .status(409) // Conflict
+                    .status(409)
                     .body("이미 가입된 이메일입니다.");
         }
 
@@ -45,7 +44,7 @@ public class AuthController {
         return ResponseEntity.ok("인증 코드가 이메일로 전송되었습니다.");
     }
 
-    // ✅ 2. 학생 회원가입 (이메일 인증 + 유효성 검사)
+    // ✅ 학생 회원가입
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@Valid @RequestBody SignupRequest request) {
         boolean isVerified = emailService.verifyCode(request.getEmail(), request.getVerificationCode());
@@ -67,7 +66,7 @@ public class AuthController {
         return ResponseEntity.ok("회원가입 성공!");
     }
 
-    // ✅ 3. 관리자 회원가입 (이메일 인증 + 종목 선택 포함)
+    // ✅ 관리자 회원가입
     @PostMapping("/signup/admin")
     public ResponseEntity<String> signupAdmin(@Valid @RequestBody AdminSignupRequest request) {
         boolean isVerified = emailService.verifyCode(request.getEmail(), request.getVerificationCode());
@@ -90,20 +89,22 @@ public class AuthController {
         return ResponseEntity.ok("관리자 회원가입 성공!");
     }
 
-    // ✅ 4. 로그인 (JWT + Refresh Token 발급 + isProfileSet 포함)
+    // ✅ 로그인 (Access Token + Refresh Token 발급)
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestParam String email, @RequestParam String password) {
         if (!userService.authenticate(email, password)) {
             throw new ApiException(ErrorType.INVALID_PASSWORD);
         }
 
-        String accessToken = jwtUtil.generateToken(email);
+        // 🔥 사용자 정보 조회
+        User user = userService.findByEmail(email);
+
+        // 🔥 userId와 email을 이용해서 Access Token 발급
+        String accessToken = jwtUtil.generateToken(user.getId(), user.getEmail());
         String refreshToken = jwtUtil.generateRefreshToken(email);
 
-        refreshTokenService.saveRefreshToken(email, refreshToken, 7 * 24 * 60 * 60 * 1000); // 7일
+        refreshTokenService.saveRefreshToken(user.getId(), email, refreshToken, 7 * 24 * 60 * 60 * 1000);
 
-        // 🔥 사용자 정보 조회 → isProfileSet 확인
-        User user = userService.findByEmail(email);
 
         return ResponseEntity.ok(Map.of(
                 "accessToken", accessToken,
@@ -113,14 +114,14 @@ public class AuthController {
         ));
     }
 
-    // ✅ 5. 비밀번호 변경 요청 (이메일 인증 코드 발송)
+    // ✅ 비밀번호 변경 요청
     @PostMapping("/password-reset-request")
     public ResponseEntity<String> requestPasswordReset(@RequestParam String email) {
         emailService.sendVerificationEmail(email);
         return ResponseEntity.ok("비밀번호 재설정을 위한 인증 코드가 이메일로 전송되었습니다.");
     }
 
-    // ✅ 6. 비밀번호 변경 (이메일 인증 + 새 비밀번호 설정)
+    // ✅ 비밀번호 변경
     @PutMapping("/password-reset")
     public ResponseEntity<String> resetPassword(@RequestParam String email, @RequestParam String code, @RequestParam String newPassword) {
         boolean isVerified = emailService.verifyCode(email, code);
@@ -132,16 +133,12 @@ public class AuthController {
         return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
     }
 
-    // ✅ 7. 현재 로그인한 사용자 정보 조회 (JWT에서 이메일 추출)
+    // ✅ 현재 로그인한 사용자 정보 조회
     @GetMapping("/me")
     public ResponseEntity<Map<String, Object>> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
-        // "Bearer eyJhbGci..." 형태에서 토큰만 추출
         String token = authHeader.replace("Bearer ", "");
 
-        // 토큰에서 이메일 추출
         String email = jwtUtil.extractUsername(token);
-
-        // 이메일로 사용자 조회
         User user = userService.findByEmail(email);
 
         return ResponseEntity.ok(Map.of(
