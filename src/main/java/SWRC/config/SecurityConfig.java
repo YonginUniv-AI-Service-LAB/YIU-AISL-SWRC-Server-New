@@ -27,14 +27,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
         http
-                .cors(cors -> cors.disable()) // 개발 중이면 일단 disable
+                .cors(cors -> cors.configure(http)) // ✅ CORS 허용 (disable 말고 configure)
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // 로그인, 회원가입 API는 열어두기
-                        .anyRequest().authenticated() // 나머지는 인증 필요
+                        .requestMatchers("/", "/api/auth/**").permitAll() // ✅ "/"도 허용 추가
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
