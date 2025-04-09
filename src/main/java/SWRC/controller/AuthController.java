@@ -99,6 +99,10 @@ public class AuthController {
         // 🔥 사용자 정보 조회
         User user = userService.findByEmail(email);
 
+        if (user.getApprovalStatus() != User.ApprovalStatus.APPROVED) {
+            throw new ApiException(ErrorType.UNAUTHORIZED);  // 또는 CUSTOM_ERROR: "관리자 승인이 필요합니다."
+        }
+
         // 🔥 userId와 email을 이용해서 Access Token 발급
         String accessToken = jwtUtil.generateToken(user.getId(), user.getEmail());
         String refreshToken = jwtUtil.generateRefreshToken(email);

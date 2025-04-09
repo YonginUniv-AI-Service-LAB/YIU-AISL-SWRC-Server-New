@@ -5,6 +5,7 @@ import SWRC.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import SWRC.entity.Admin;
 
 import java.util.Optional;
 
@@ -43,16 +44,18 @@ public class UserService {
 
         String encodedPassword = passwordEncoder.encode(rawPassword);
 
-        User user = User.builder()
+        Admin admin = Admin.builder()
                 .email(email)
                 .password(encodedPassword)
                 .name(name)
                 .phoneNumber(phoneNumber)
+                .sportType(sportType)
                 .role(User.Role.ADMIN)
-                .sportType(sportType) // ⚠️ User 엔티티에 있어야 함
+                .approvalStatus(User.ApprovalStatus.PENDING)
+                .profileSet(false) // ✅ 요거 꼭 추가!
                 .build();
 
-        return userRepository.save(user);
+        return userRepository.save(admin);
     }
 
     // ✅ 로그인 (비밀번호 비교)
