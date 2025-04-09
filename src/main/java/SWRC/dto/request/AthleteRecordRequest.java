@@ -26,4 +26,10 @@ public class AthleteRecordRequest {
 
     @Size(max = 255, message = "특이사항은 255자 이하로 입력해 주세요.")
     private String etc;
+
+    @NotNull(message = "기록 항목은 필수입니다.")
+    private String event;
+
+    @NotNull(message = "기록 단위는 필수입니다.")
+    private String unit;
 }

@@ -24,8 +24,8 @@ public class AthleteRecordService {
         record.setRecordDate(request.getRecordDate());
         record.setRecordValue(request.getRecordValue());
         record.setEtc(request.getEtc());
-        record.setEvent("종목 입력"); // 기본값 또는 외부에서 설정 가능
-        record.setUnit("단위 입력");  // 예: 초, m 등
+        record.setEvent(request.getEvent());
+        record.setUnit(request.getUnit());
         return athleteRecordRepository.save(record);
     }
 
