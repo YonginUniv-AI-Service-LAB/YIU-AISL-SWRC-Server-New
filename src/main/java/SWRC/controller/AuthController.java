@@ -96,56 +96,61 @@ public class AuthController {
             throw new ApiException(ErrorType.INVALID_PASSWORD);
         }
 
-        // 🔥 사용자 정보 조회
+
         User user = userService.findByEmail(email);
 
-        // 🔥 userId와 email을 이용해서 Access Token 발급
-        String accessToken = jwtUtil.generateToken(user.getId(), user.getEmail());
-        String refreshToken = jwtUtil.generateRefreshToken(email);
-
-        refreshTokenService.saveRefreshToken(user.getId(), email, refreshToken, 7 * 24 * 60 * 60 * 1000);
-
-
-        return ResponseEntity.ok(Map.of(
-                "accessToken", accessToken,
-                "refreshToken", refreshToken,
-                "isProfileSet", user.isProfileSet(),
-                "userId", user.getId()
-        ));
-    }
-
-    // ✅ 비밀번호 변경 요청
-    @PostMapping("/password-reset-request")
-    public ResponseEntity<String> requestPasswordReset(@RequestParam String email) {
-        emailService.sendVerificationEmail(email);
-        return ResponseEntity.ok("비밀번호 재설정을 위한 인증 코드가 이메일로 전송되었습니다.");
-    }
-
-    // ✅ 비밀번호 변경
-    @PutMapping("/password-reset")
-    public ResponseEntity<String> resetPassword(@RequestParam String email, @RequestParam String code, @RequestParam String newPassword) {
-        boolean isVerified = emailService.verifyCode(email, code);
-        if (!isVerified) {
-            throw new ApiException(ErrorType.AUTH_CODE_MISMATCH);
+// ✅ 관리자일 때만 승인 상태 확인
+        if (user.getRole() == User.Role.ADMIN && user.getApprovalStatus() != User.ApprovalStatus.APPROVED) {
+            throw new ApiException(ErrorType.UNAUTHORIZED); // 관리자 미승인
         }
 
-        userService.updatePassword(email, newPassword);
-        return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
+        String accessToken = jwtUtil.generateToken(user.getId(), user.getEmail());
+            String refreshToken = jwtUtil.generateRefreshToken(email);
+
+            refreshTokenService.saveRefreshToken(user.getId(), email, refreshToken, 7 * 24 * 60 * 60 * 1000);
+
+
+            return ResponseEntity.ok(Map.of(
+                    "accessToken", accessToken,
+                    "refreshToken", refreshToken,
+                    "isProfileSet", user.isProfileSet(),
+                    "userId", user.getId(),
+                    "role", user.getRole().name() // 🔄 프론트에 role도 넘기면 편함!
+            ));
+        }
+
+        // ✅ 비밀번호 변경 요청
+        @PostMapping("/password-reset-request")
+        public ResponseEntity<String> requestPasswordReset(@RequestParam String email) {
+            emailService.sendVerificationEmail(email);
+            return ResponseEntity.ok("비밀번호 재설정을 위한 인증 코드가 이메일로 전송되었습니다.");
+        }
+
+        // ✅ 비밀번호 변경
+        @PutMapping("/password-reset")
+        public ResponseEntity<String> resetPassword(@RequestParam String email, @RequestParam String code, @RequestParam String newPassword) {
+            boolean isVerified = emailService.verifyCode(email, code);
+            if (!isVerified) {
+                throw new ApiException(ErrorType.AUTH_CODE_MISMATCH);
+            }
+
+            userService.updatePassword(email, newPassword);
+            return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
+        }
+
+        // ✅ 현재 로그인한 사용자 정보 조회
+        @GetMapping("/me")
+        public ResponseEntity<Map<String, Object>> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
+            String token = authHeader.replace("Bearer ", "");
+
+            String email = jwtUtil.extractUsername(token);
+            User user = userService.findByEmail(email);
+
+            return ResponseEntity.ok(Map.of(
+                    "email", user.getEmail(),
+                    "role", user.getRole().name(),
+                    "isProfileSet", user.getProfileSet(),
+                    "userId", user.getId()
+            ));
+        }
     }
-
-    // ✅ 현재 로그인한 사용자 정보 조회
-    @GetMapping("/me")
-    public ResponseEntity<Map<String, Object>> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.replace("Bearer ", "");
-
-        String email = jwtUtil.extractUsername(token);
-        User user = userService.findByEmail(email);
-
-        return ResponseEntity.ok(Map.of(
-                "email", user.getEmail(),
-                "role", user.getRole().name(),
-                "isProfileSet", user.getProfileSet(),
-                "userId", user.getId()
-        ));
-    }
-}
