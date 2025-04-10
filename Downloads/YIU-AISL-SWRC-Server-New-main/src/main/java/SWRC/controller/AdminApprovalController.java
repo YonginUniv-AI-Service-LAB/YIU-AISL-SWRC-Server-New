@@ -11,7 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
@@ -23,14 +23,14 @@ public class AdminApprovalController {
     // ✅ 승인 대기 관리자 목록 조회
     @GetMapping("/pending")
     public ResponseEntity<List<Admin>> getPendingAdmins(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        validateSuperAdmin(userDetails);
+//        validateSuperAdmin(userDetails);
         return ResponseEntity.ok(adminApprovalService.getPendingAdmins());
     }
 
     // ✅ 승인된 관리자 목록 조회
     @GetMapping("/approved")
     public ResponseEntity<List<Admin>> getApprovedAdmins(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        validateSuperAdmin(userDetails);
+//        validateSuperAdmin(userDetails);
         return ResponseEntity.ok(adminApprovalService.getApprovedAdmins());
     }
 
@@ -38,7 +38,7 @@ public class AdminApprovalController {
     @PostMapping("/approve/{id}")
     public ResponseEntity<String> approveAdmin(@PathVariable Long id,
                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        validateSuperAdmin(userDetails);
+//        validateSuperAdmin(userDetails);
         adminApprovalService.approveAdmin(id);
         return ResponseEntity.ok("관리자 승인 완료");
     }
@@ -47,7 +47,7 @@ public class AdminApprovalController {
     @PostMapping("/reject/{id}")
     public ResponseEntity<String> rejectAdmin(@PathVariable Long id,
                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        validateSuperAdmin(userDetails);
+//        validateSuperAdmin(userDetails);
         adminApprovalService.rejectAdmin(id);
         return ResponseEntity.ok("관리자 거절 처리 완료");
     }
@@ -56,15 +56,15 @@ public class AdminApprovalController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteAdmin(@PathVariable Long id,
                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        validateSuperAdmin(userDetails);
+//        validateSuperAdmin(userDetails);
         adminApprovalService.deleteAdmin(id);
         return ResponseEntity.ok("관리자 삭제 완료");
     }
 
     // ✅ 수정된 validateSuperAdmin
-    private void validateSuperAdmin(UserDetailsImpl userDetails) {
-        if (userDetails == null || !SUPER_ADMIN_EMAIL.equals(userDetails.getUsername())) {
-            throw new ApiException(ErrorType.UNAUTHORIZED);
-        }
-    }
+//    private void validateSuperAdmin(UserDetailsImpl userDetails) {
+//        if (userDetails == null || !SUPER_ADMIN_EMAIL.equals(userDetails.getUsername())) {
+//            throw new ApiException(ErrorType.UNAUTHORIZED);
+//        }
+//    }
 }
